@@ -14,14 +14,10 @@ void TactileSwitch::init(int pin)
 {
 	pinMode(pin, INPUT);
 	_pin = pin;
-	
-	Serial.write("Pin Set..");
-
 }
 
 bool TactileSwitch::on()
 {
-	Serial.write("test..");
 
 	if (_pin == -1) return false;
 
