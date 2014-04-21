@@ -11,5 +11,5 @@ Following is a schematics
 
 ***
 
-![Schema](/CircuitDiagram.png)
+![Schema](CircuitDiagram.png)
 
