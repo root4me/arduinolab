@@ -13,6 +13,41 @@ bool SortPointByY(Point a, Point b) {
 	return a.y < b.y;
 }
 
+bool SortPointByX(Point a, Point b) {
+	return a.x < b.x;
+}
+
+enum direction {
+	horizontal, vertical, angular
+};
+
+struct orientation {
+	direction d;
+	double angle;
+};
+
+double angleInDegree(Point p1, Point p2) {
+	double rad = atan2(fabs(p1.y - p2.y), fabs(p1.x - p2.x)); // radians
+	return (rad * 180) / M_PI; // convert to degree
+}
+
+orientation lineSlope(Point p1, Point p2) {
+
+	double angle = angleInDegree(p1, p2);
+
+	orientation o;
+	o.angle = angle;
+
+	if (angle < 20)
+		o.d = horizontal;
+	else if (angle > 80 && angle < 100)
+		o.d = vertical;
+	else
+		o.d = angular;
+
+	return o;
+}
+
 void findArrow(int pos, void* userdata) {
 
 	Mat afterCanny, afterContours;
@@ -20,6 +55,7 @@ void findArrow(int pos, void* userdata) {
 	vector<Point> approxPoly, approxPloySorted;
 	Point leftmost;
 	Scalar color;
+	int lineSum; // each horizontal = 0 , vertical = 1, angular = 3
 
 	// canny
 	Canny(input, afterCanny, pos, pos * 3);
@@ -38,49 +74,54 @@ void findArrow(int pos, void* userdata) {
 	// loop contours
 	cout << "==================================" << endl;
 	for (uint i = 0; i < contours.size(); i++) {
+
 		// get approx poly
 		approxPolyDP(contours[i], approxPoly, 3, true);
 		if (approxPoly.size() == 7) {
 			//check if this is an arrow
-			cout << "Contour " << i << " could be an arrow" << endl;
+			//cout << "Contour " << i << " could be an arrow" << endl;
 
-			approxPloySorted = approxPoly;
+			lineSum = 0;
+			leftmost = approxPoly[0];
+			for (uint j = 0; j < approxPoly.size(); j++) {
+				if (approxPoly[j].x < leftmost.x)
+					leftmost = approxPoly[j];
 
-			sort(approxPloySorted.begin(), approxPloySorted.end(), SortPointByY);
+				lineSum += lineSlope(approxPoly[j], approxPoly[j + 1]).d;
+				//cout << "edge weight  " << lineSum << endl;
+			}
 
-			int y0 = approxPloySorted[0].y;
-			int y1 = approxPloySorted[1].y;
-			int y2 = approxPloySorted[2].y;
-			int y3 = approxPloySorted[3].y;
-			int y4 = approxPloySorted[4].y;
-			int y5 = approxPloySorted[5].y;
-			int y6 = approxPloySorted[6].y;
+			if (lineSum == 6 || lineSum == 7) {
+				//cout << "Contour  " << i << " is an arrow " << endl;
 
-			// either left , right or up
-			if (y0 != y1) {
-				// either left or right
-				if (((y1 == y2) || (y1 == (y2 + 3)) || (y1 == (y2 - 3))) && (!(y3 == y4))) {
-					leftmost = approxPloySorted[0];
-					for (uint j = 0; j < approxPloySorted.size(); j++) {
-						if (approxPloySorted[j].x < leftmost.x)
-							leftmost = approxPloySorted[j];
+				Rect bound;
+				bound = boundingRect(Mat(approxPoly));
+				Scalar color = Scalar(200, 200, 200);
+				drawContours(afterContours, contours, i, color, 1, 4, vector<Vec4i>(), 0, Point());
+				rectangle(afterContours, bound.tl(), bound.br(), color, 1, 4, 0);
+
+				if (lineSum == 7) // left or right pointing arrow
+				{
+					approxPloySorted = approxPoly;
+					sort(approxPloySorted.begin(), approxPloySorted.end(), SortPointByX);
+					if (lineSlope(approxPloySorted[0], approxPloySorted[1]).d == vertical)
+					{
+						cout << "Contour  " << i << " is a Right arrow " << endl;
+						putText(afterContours, "Right Arrow", bound.tl(), FONT_HERSHEY_COMPLEX, .5, Scalar(128, 128, 0), 1);
 					}
-
-					cout << "Left Most ..." << leftmost << endl;
-					cout << "y3 ..." << y3 << endl;
-					cout << "Left Most ..." << leftmost.y << endl;
-
-					if (y3 == leftmost.y) {
-						cout << "Left Arrow.. " << endl;
-					} else {
-						cout << "Right Arrow.. " << endl;
+					else
+					{
+						cout << "Contour  " << i << " is a Left arrow " << endl;
+						putText(afterContours, "Left Arrow", bound.tl(), FONT_HERSHEY_COMPLEX, .5, Scalar(128, 128, 0), 1);
 					}
-
 				}
 			}
 		}
 	}
+
+	imshow("Arrow Marked", afterContours);
 }
+
 
 /** @function main */
 int main(int argc, char** argv) {
