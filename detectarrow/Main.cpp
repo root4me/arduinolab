@@ -48,7 +48,9 @@ orientation lineSlope(Point p1, Point p2) {
 	return o;
 }
 
-void findArrow(int pos, void* userdata) {
+
+
+void findArrow(int pos) {
 
 	Mat afterCanny, afterContours;
 	vector<vector<Point> > contours;
@@ -122,6 +124,10 @@ void findArrow(int pos, void* userdata) {
 	imshow("Arrow Marked", afterContours);
 }
 
+void findArrowCallBack(int pos, void* userdata) {
+
+	findArrow(pos);
+}
 
 /** @function main */
 int main(int argc, char** argv) {
@@ -136,8 +142,30 @@ int main(int argc, char** argv) {
 
 	imshow("Input Image", input);
 	moveWindow("Input Image", 0, 0);
-	createTrackbar("Refine", "Input Image", &sliderinit, 255, findArrow);
+	createTrackbar("Refine", "Input Image", &sliderinit, 255, findArrowCallBack);
+
+	findArrow(100);
 
 	waitKey(0);
 	return (0);
+}
+
+int main1(int argc, char** argv) {
+	VideoCapture capture(0);
+	if(!capture.isOpened()){
+			cout << "Failed to connect to the camera." << endl;
+	}
+	Mat frame;
+	capture >> frame;
+	if(frame.empty()){
+				cout << "Failed to capture an image" << endl;
+				return -1;
+	}
+	imwrite("test.jpg", frame);
+
+	input = frame;
+
+	findArrow(100);
+
+	return 0;
 }

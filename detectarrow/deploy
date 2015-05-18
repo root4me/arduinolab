@@ -1,0 +1,2 @@
+scp *.cpp root@beaglebone.local:~/projects
+scp build root@beaglebone.local:~/projects
