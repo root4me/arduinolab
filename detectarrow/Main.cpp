@@ -2,6 +2,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 #include <stdio.h>
+#include "shapes.h"
 
 using namespace cv;
 using namespace std;
@@ -140,11 +141,20 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	imshow("Input Image", input);
-	moveWindow("Input Image", 0, 0);
-	createTrackbar("Refine", "Input Image", &sliderinit, 255, findArrowCallBack);
+	//imshow("Input Image", input);
+	//moveWindow("Input Image", 0, 0);
+	//createTrackbar("Refine", "Input Image", &sliderinit, 255, findArrowCallBack);
 
-	findArrow(100);
+	//findArrow(100);
+
+	shapes s = shapes(input);
+	std::vector<arrow> arrows = s.arrows();
+
+	for (uint i = 0 ; i < arrows.size(); i++)
+	{
+		cout << "points - > " << arrows[i].polygon << endl;
+		cout << "direction -> " << arrows[i].direction << endl;
+	}
 
 	waitKey(0);
 	return (0);

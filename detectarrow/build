@@ -1,2 +1,2 @@
 
-g++ Main.cpp -o arrow `pkg-config --cflags --libs opencv`
+g++ Main.cpp shapes.cpp -o arrow `pkg-config --cflags --libs opencv`
