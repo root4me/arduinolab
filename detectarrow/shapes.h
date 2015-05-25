@@ -29,6 +29,7 @@ private:
 public:
 	shapes();
 	shapes(cv::Mat img);
+	 ~shapes();
 	std::vector<arrow> arrows();
 
 };

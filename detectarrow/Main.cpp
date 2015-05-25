@@ -60,8 +60,13 @@ void findArrow(int pos) {
 	Scalar color;
 	int lineSum; // each horizontal = 0 , vertical = 1, angular = 3
 
+	cv::Mat src_gray, detected_edges;
+
+	cv::cvtColor( input, src_gray, CV_BGR2GRAY );
+	cv::blur( src_gray, detected_edges, cv::Size(3,3) );
+
 	// canny
-	Canny(input, afterCanny, pos, pos * 3);
+	Canny(detected_edges, afterCanny, pos, pos * 3);
 	imshow("After Canny", afterCanny);
 	moveWindow("After Canny", 800, 800);
 	// contour
@@ -131,7 +136,7 @@ void findArrowCallBack(int pos, void* userdata) {
 }
 
 /** @function main */
-int main(int argc, char** argv) {
+int main1(int argc, char** argv) {
 	/// Load source image and convert it to gray
 	input = imread(argv[1]);
 
@@ -154,28 +159,47 @@ int main(int argc, char** argv) {
 	{
 		cout << "points - > " << arrows[i].polygon << endl;
 		cout << "direction -> " << arrows[i].direction << endl;
+
+		Rect bound = boundingRect(Mat(arrows[i].polygon));
+		rectangle(input, bound.tl(), bound.br(), Scalar(200, 200, 200), 1, 4, 0);
 	}
 
+	//imshow("Output Image", input);
+
 	waitKey(0);
+
+	input.deallocate();
+
 	return (0);
 }
 
-int main1(int argc, char** argv) {
-	VideoCapture capture(0);
-	if(!capture.isOpened()){
-			cout << "Failed to connect to the camera." << endl;
-	}
-	Mat frame;
-	capture >> frame;
-	if(frame.empty()){
-				cout << "Failed to capture an image" << endl;
-				return -1;
-	}
-	imwrite("test.jpg", frame);
+int main(int argc, char** argv) {
 
-	input = frame;
+    VideoCapture cap(0);
+    if(!cap.isOpened())
+        return -1;
 
-	findArrow(100);
+    namedWindow("Camera",1);
+    for(;;)
+    {
+        cap >> input;
+
+    	shapes s = shapes(input);
+    	std::vector<arrow> arrows = s.arrows();
+
+    	for (uint i = 0 ; i < arrows.size(); i++)
+    	{
+    		cout << "points - > " << arrows[i].polygon << endl;
+    		cout << "direction -> " << arrows[i].direction << endl;
+
+    		Rect bound = boundingRect(Mat(arrows[i].polygon));
+    		rectangle(input, bound.tl(), bound.br(), Scalar(200, 200, 200), 1, 4, 0);
+    	}
+
+        imshow("Camera", input);
+        if(waitKey(30) == 27) break;
+    }
+
 
 	return 0;
 }
