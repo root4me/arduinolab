@@ -4,13 +4,15 @@
 
 class Lamp {
 private:
-  int pin;
-  bool activeLow;
+int pin;
+bool activeLow;
+bool switchedOn =  false;
 
 public:
-  bool switchOn();
-  bool switchOff();
-  Lamp(int relayPin, bool isActiveLow);
+bool switchOn();
+bool switchOff();
+bool isSwitchedOn();
+Lamp(int relayPin, bool isActiveLow);
 };
 
 #endif

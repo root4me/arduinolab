@@ -8,32 +8,39 @@ bool switchOnIfDark();
 
 Lamp::Lamp(int relayPin, bool isActiveLow)
 {
-  pin=relayPin;
-  activeLow = isActiveLow;
+        pin=relayPin;
+        activeLow = isActiveLow;
 
-  pinMode(pin, OUTPUT);
-  switchOff();
+        pinMode(pin, OUTPUT);
+        switchOff();
 }
 
 bool Lamp::switchOn()
 {
-  if (activeLow)
-  {
-    digitalWrite(pin, LOW);
-  }
-  else{
-    digitalWrite(pin, LOW);
-  }
+        if (activeLow)
+        {
+                digitalWrite(pin, LOW);
+        }
+        else{
+                digitalWrite(pin, LOW);
+        }
+        switchedOn = true;
 }
 
 bool Lamp::switchOff()
 {
-  if (activeLow)
-  {
-    digitalWrite(pin, HIGH);
-  }
-  else
-  {
-    digitalWrite(pin, LOW);
-  }
+        if (activeLow)
+        {
+                digitalWrite(pin, HIGH);
+        }
+        else
+        {
+                digitalWrite(pin, LOW);
+        }
+        switchedOn = false;
+}
+
+bool Lamp::isSwitchedOn()
+{
+        return switchedOn;
 }
