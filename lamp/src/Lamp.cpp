@@ -25,6 +25,7 @@ bool Lamp::switchOn()
                 digitalWrite(pin, LOW);
         }
         switchedOn = true;
+        return switchedOn;
 }
 
 bool Lamp::switchOff()
@@ -38,6 +39,7 @@ bool Lamp::switchOff()
                 digitalWrite(pin, LOW);
         }
         switchedOn = false;
+        return switchedOn;
 }
 
 bool Lamp::isSwitchedOn()
